@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../glob/users.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -53,7 +54,7 @@ class LoginScreenState extends State<LoginScreen> {
     });
 
     loginTimer = Timer.periodic(
-      Duration(seconds: 1),
+      const Duration(seconds: 1),
       (timer) {
         if (!mounted) {
           timer.cancel();
@@ -85,7 +86,7 @@ class LoginScreenState extends State<LoginScreen> {
     });
 
     registerTimer = Timer.periodic(
-      Duration(seconds: 1),
+      const Duration(seconds: 1),
       (timer) {
         if (!mounted) {
           timer.cancel();
@@ -131,7 +132,6 @@ class LoginScreenState extends State<LoginScreen> {
         passwordError = true;
         error = 'Email and Password are required.';
       });
-
       return;
     }
 
@@ -140,7 +140,6 @@ class LoginScreenState extends State<LoginScreen> {
         emailError = true;
         error = 'Email is Required.';
       });
-
       return;
     }
 
@@ -149,7 +148,6 @@ class LoginScreenState extends State<LoginScreen> {
         emailError = true;
         error = 'Please enter a valid email address.';
       });
-
       return;
     }
 
@@ -158,7 +156,6 @@ class LoginScreenState extends State<LoginScreen> {
         passwordError = true;
         error = 'Password is Required.';
       });
-
       return;
     }
 
@@ -166,17 +163,34 @@ class LoginScreenState extends State<LoginScreen> {
       submitting = true;
     });
 
-    await Future.delayed(Duration(milliseconds: 700));
+    await Future.delayed(const Duration(milliseconds: 700));
+
+    final user = AllUsers.userList.cast<Map<String, dynamic>?>().firstWhere(
+      (user) => user?['email']?.toString().toLowerCase() == email.toLowerCase() && user?['password']?.toString() == password,
+      orElse: () => null,
+    );
 
     if (!mounted) {
       return;
     }
 
+    if (user == null) {
+      setState(() {
+        submitting = false;
+        error = 'Invalid email or password.';
+        emailError = true;
+        passwordError = true;
+      });
+      return;
+    }
+
+    AllUsers.currentUser = user;
+
     setState(() {
       submitting = false;
     });
 
-    Navigator.pushReplacementNamed(context, '/home');
+    Navigator.pushReplacementNamed(context, '/home', arguments: user);
   }
 
   void goToRegister() {
@@ -188,13 +202,7 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   void goToForgotPassword() {
-    if (registerCooldownSeconds > 0) {
-      return;
-    }
-
-    Navigator.pushNamed(context, '/forgot-password',
-      arguments: {'prefilledEmail': emailController.text.trim().toLowerCase()},
-    );
+    Navigator.pushNamed(context, '/forgot-password', arguments: {'prefilledEmail': emailController.text.trim().toLowerCase()});
   }
 
   @override
@@ -210,7 +218,7 @@ class LoginScreenState extends State<LoginScreen> {
           onTap: () => FocusScope.of(context).unfocus(),
           child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.only(left: 22, right: 22, top: 28, bottom: 96),
+              padding: const EdgeInsets.only(left: 22, right: 22, top: 28, bottom: 96),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - 28),
                 child: Column(
@@ -230,18 +238,18 @@ class LoginScreenState extends State<LoginScreen> {
 
   Widget buildLogoSection() {
     return Container(
-      margin: EdgeInsets.only(bottom: 26),
+      margin: const EdgeInsets.only(bottom: 26),
       child: Column(
         children: [
           Image.asset('assets/images/clinic-logo.jpg', width: 135, height: 135, fit: BoxFit.contain),
-          SizedBox(height: 8),
-          Text('ToothConnect', style: TextStyle(inherit: true, fontSize: 34, fontWeight: FontWeight.w900, color: Color(0xFFB47A00), fontFamily: 'Arial')),
-          SizedBox(height: 4),
-          Padding(
+          const SizedBox(height: 8),
+          const Text('ToothConnect', style: TextStyle(inherit: true, fontSize: 34, fontWeight: FontWeight.w900, color: Color(0xFFB47A00), fontFamily: 'Arial')),
+          const SizedBox(height: 4),
+          const Padding(
             padding: EdgeInsets.only(bottom: 14),
             child: Text('Your dental care, connected.', style: TextStyle(inherit: true, fontSize: 13, color: Color(0xFF1F1F1F), fontFamily: 'Arial')),
           ),
-          Container(width: 195, height: 2, decoration: BoxDecoration(color: Color(0xFFC88A11), borderRadius: BorderRadius.circular(10))),
+          Container(width: 195, height: 2, decoration: BoxDecoration(color: const Color(0xFFC88A11), borderRadius: BorderRadius.circular(10))),
         ],
       ),
     );
@@ -250,9 +258,9 @@ class LoginScreenState extends State<LoginScreen> {
   Widget buildLoginCard({required bool loginLocked, required bool registerLocked}) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.86,
-      constraints: BoxConstraints(minHeight: 390),
-      padding: EdgeInsets.only(left: 34, right: 34, top: 20, bottom: 34),
-      decoration: BoxDecoration(
+      constraints: const BoxConstraints(minHeight: 390),
+      padding: const EdgeInsets.only(left: 34, right: 34, top: 20, bottom: 34),
+      decoration: const BoxDecoration(
         color: Color(0xFFE4CF88),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(30),
@@ -264,21 +272,18 @@ class LoginScreenState extends State<LoginScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
+          const Center(
             child: Padding(
               padding: EdgeInsets.only(bottom: 24),
-              child: Text(
-                'LOGIN',
-                style: TextStyle(inherit: true, fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xFFC78300), fontFamily: 'Arial'),
-              ),
+              child: Text('LOGIN', style: TextStyle(inherit: true, fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xFFC78300), fontFamily: 'Arial')),
             ),
           ),
           if (registerCooldownSeconds > 0) buildWarningBox(),
           buildLabel('Email', emailError),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           buildEmailInput(),
           buildLabel('Password', passwordError),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           buildPasswordInput(),
           buildForgotPassword(),
           if (error.isNotEmpty) buildErrorBox(),
@@ -292,17 +297,14 @@ class LoginScreenState extends State<LoginScreen> {
 
   Widget buildLabel(String text, bool hasError) {
     return Padding(
-      padding: EdgeInsets.only(top: 10, bottom: 0),
-      child: Text(
-        text,
-        style: TextStyle(inherit: true, fontSize: 18, color: Color(0xFF8B6508), fontWeight: FontWeight.w800, fontFamily: 'Arial'),
-      ),
+      padding: const EdgeInsets.only(top: 10),
+      child: Text(text, style: const TextStyle(inherit: true, fontSize: 18, color: Color(0xFF8B6508), fontWeight: FontWeight.w800, fontFamily: 'Arial')),
     );
   }
 
   Widget buildEmailInput() {
     return Container(
-      margin: EdgeInsets.only(bottom: 4),
+      margin: const EdgeInsets.only(bottom: 4),
       child: TextField(
         controller: emailController,
         keyboardType: TextInputType.emailAddress,
@@ -319,34 +321,34 @@ class LoginScreenState extends State<LoginScreen> {
         },
         decoration: InputDecoration(
           hintText: 'Enter your email',
-          hintStyle: TextStyle(inherit: true, fontSize: 15, color: Color(0xFF888888), fontFamily: 'Arial'),
+          hintStyle: const TextStyle(inherit: true, fontSize: 15, color: Color(0xFF888888), fontFamily: 'Arial'),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          constraints: BoxConstraints(minHeight: 46),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          constraints: const BoxConstraints(minHeight: 46),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide.none),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(4),
-            borderSide: emailError ? BorderSide(color: Color(0xFFD03939), width: 1) : BorderSide.none,
+            borderSide: emailError ? const BorderSide(color: Color(0xFFD03939), width: 1) : BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(4),
-            borderSide: emailError ? BorderSide(color: Color(0xFFD03939), width: 1) : BorderSide.none,
+            borderSide: emailError ? const BorderSide(color: Color(0xFFD03939), width: 1) : BorderSide.none,
           ),
         ),
-        style: TextStyle(inherit: true, fontSize: 15, color: Color(0xFF2F2F2F), fontFamily: 'Arial'),
+        style: const TextStyle(inherit: true, fontSize: 15, color: Color(0xFF2F2F2F), fontFamily: 'Arial'),
       ),
     );
   }
 
   Widget buildPasswordInput() {
     return Container(
-      margin: EdgeInsets.only(bottom: 4),
-      constraints: BoxConstraints(minHeight: 46),
+      margin: const EdgeInsets.only(bottom: 4),
+      constraints: const BoxConstraints(minHeight: 46),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(4),
-        border: passwordError ? Border.all(color: Color(0xFFD03939), width: 1) : null,
+        border: passwordError ? Border.all(color: const Color(0xFFD03939), width: 1) : null,
       ),
       child: Row(
         children: [
@@ -365,33 +367,33 @@ class LoginScreenState extends State<LoginScreen> {
                   });
                 }
               },
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Enter your password',
                 hintStyle: TextStyle(inherit: true, fontSize: 15, color: Color(0xFF888888), fontFamily: 'Arial'),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               ),
-              style: TextStyle(inherit: true, fontSize: 15, color: Color(0xFF2F2F2F), fontFamily: 'Arial'),
+              style: const TextStyle(inherit: true, fontSize: 15, color: Color(0xFF2F2F2F), fontFamily: 'Arial'),
             ),
           ),
           SizedBox(
             height: 46,
             child: TextButton(
-              onPressed: submitting || loginLockoutSeconds > 0 ? null : () {
+              onPressed: submitting || loginLockoutSeconds > 0
+                  ? null
+                  : () {
                       setState(() {
                         showPassword = !showPassword;
                       });
                     },
               style: ButtonStyle(
-                padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 12)),
-                minimumSize: WidgetStatePropertyAll(Size(0, 46)),
+                padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 12)),
+                minimumSize: const WidgetStatePropertyAll(Size(0, 46)),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 foregroundColor: WidgetStateProperty.resolveWith<Color>(
-                  (states) => states.contains(WidgetState.disabled) ? Color(0xFFB77C00).withValues(alpha: 0.5) : Color(0xFFB77C00),
+                  (states) => states.contains(WidgetState.disabled) ? const Color(0xFFB77C00).withValues(alpha: 0.5) : const Color(0xFFB77C00),
                 ),
-                textStyle: WidgetStatePropertyAll(
-                  TextStyle(inherit: true, fontSize: 11, color: Color(0xFFB77C00), fontWeight: FontWeight.w900, fontFamily: 'Arial'),
-                ),
+                textStyle: const WidgetStatePropertyAll(TextStyle(inherit: true, fontSize: 11, color: Color(0xFFB77C00), fontWeight: FontWeight.w900, fontFamily: 'Arial')),
               ),
               child: Text(showPassword ? 'HIDE' : 'SHOW'),
             ),
@@ -405,21 +407,19 @@ class LoginScreenState extends State<LoginScreen> {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        margin: EdgeInsets.only(top: 4, bottom: 20),
+        margin: const EdgeInsets.only(top: 4, bottom: 20),
         child: TextButton(
-          onPressed: submitting || registerCooldownSeconds > 0 ? null : goToForgotPassword,
+          onPressed: submitting ? null : goToForgotPassword,
           style: ButtonStyle(
-            padding: WidgetStatePropertyAll(EdgeInsets.zero),
-            minimumSize: WidgetStatePropertyAll(Size(0, 0)),
+            padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+            minimumSize: const WidgetStatePropertyAll(Size(0, 0)),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             foregroundColor: WidgetStateProperty.resolveWith<Color>(
-              (states) => states.contains(WidgetState.disabled) ? Color(0xFFBF8300).withValues(alpha: 0.5) : Color(0xFFBF8300),
+              (states) => states.contains(WidgetState.disabled) ? const Color(0xFFBF8300).withValues(alpha: 0.5) : const Color(0xFFBF8300),
             ),
-            textStyle: WidgetStatePropertyAll(
-              TextStyle(inherit: true, fontSize: 14, fontWeight: FontWeight.w600, fontFamily: 'Arial'),
-            ),
+            textStyle: const WidgetStatePropertyAll(TextStyle(inherit: true, fontSize: 14, fontWeight: FontWeight.w600, fontFamily: 'Arial')),
           ),
-          child: Text('Forgot Password?'),
+          child: const Text('Forgot Password?'),
         ),
       ),
     );
@@ -428,34 +428,27 @@ class LoginScreenState extends State<LoginScreen> {
   Widget buildErrorBox() {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-      decoration: BoxDecoration(
-        color: Color(0xFFFFF0F0),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        error,
-        textAlign: TextAlign.center,
-        style: TextStyle(inherit: true, color: Color(0xFF9B2C2C), fontSize: 13, fontFamily: 'Arial'),
-      ),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      decoration: BoxDecoration(color: const Color(0xFFFFF0F0), borderRadius: BorderRadius.circular(6)),
+      child: Text(error, textAlign: TextAlign.center, style: const TextStyle(inherit: true, color: Color(0xFF9B2C2C), fontSize: 13, fontFamily: 'Arial')),
     );
   }
 
   Widget buildWarningBox() {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: 14),
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       decoration: BoxDecoration(
-        color: Color(0xFFFFF0F0),
-        border: Border.all(color: Color(0xFFE58A8A)),
+        color: const Color(0xFFFFF0F0),
+        border: Border.all(color: const Color(0xFFE58A8A)),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         'Too many attempts. Please wait ${formatCooldown(registerCooldownSeconds)}.',
         textAlign: TextAlign.center,
-        style: TextStyle(inherit: true, color: Color(0xFF9B2C2C), fontSize: 12, fontWeight: FontWeight.w700, fontFamily: 'Arial', height: 18 / 13),
+        style: const TextStyle(inherit: true, color: Color(0xFF9B2C2C), fontSize: 12, fontWeight: FontWeight.w700, fontFamily: 'Arial', height: 18 / 13),
       ),
     );
   }
@@ -465,39 +458,23 @@ class LoginScreenState extends State<LoginScreen> {
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 0.86,
         child: Container(
-          margin: EdgeInsets.only(top: 4),
+          margin: const EdgeInsets.only(top: 4),
           child: ElevatedButton(
             onPressed: submitting || loginLocked ? null : handleLogin,
             style: ButtonStyle(
               backgroundColor: WidgetStateProperty.resolveWith<Color>(
-                (states) => states.contains(WidgetState.disabled) ? Color(0xFFC98904).withValues(alpha: 0.7) : Color(0xFFC98904),
+                (states) => states.contains(WidgetState.disabled) ? const Color(0xFFC98904).withValues(alpha: 0.7) : const Color(0xFFC98904),
               ),
-              foregroundColor: WidgetStatePropertyAll(Colors.white),
-              elevation: WidgetStatePropertyAll(0),
-              padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 13)),
-              minimumSize: WidgetStatePropertyAll(Size(0, 52)),
-              shape: WidgetStatePropertyAll(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-              ),
-              textStyle: WidgetStatePropertyAll(
-                TextStyle(
-                  inherit: true,
-                  color: Colors.white,
-                  fontSize: 19,
-                  fontWeight: FontWeight.w900,
-                  fontFamily: 'Arial',
-                ),
+              foregroundColor: const WidgetStatePropertyAll(Colors.white),
+              elevation: const WidgetStatePropertyAll(0),
+              padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 13)),
+              minimumSize: const WidgetStatePropertyAll(Size(0, 52)),
+              shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6))),
+              textStyle: const WidgetStatePropertyAll(
+                TextStyle(inherit: true, color: Colors.white, fontSize: 19, fontWeight: FontWeight.w900, fontFamily: 'Arial'),
               ),
             ),
-            child: Text(
-              submitting
-                  ? 'SIGNING IN...'
-                  : loginLocked
-                      ? formatCooldown(loginLockoutSeconds)
-                      : 'SIGN IN',
-            ),
+            child: Text(submitting ? 'SIGNING IN...' : loginLocked ? formatCooldown(loginLockoutSeconds) : 'SIGN IN'),
           ),
         ),
       ),
@@ -508,8 +485,8 @@ class LoginScreenState extends State<LoginScreen> {
     return Container(
       width: double.infinity,
       height: 1.2,
-      margin: EdgeInsets.only(top: 28, bottom: 14),
-      color: Color(0xFFB98212),
+      margin: const EdgeInsets.only(top: 28, bottom: 14),
+      color: const Color(0xFFB98212),
     );
   }
 
@@ -518,25 +495,23 @@ class LoginScreenState extends State<LoginScreen> {
       child: TextButton(
         onPressed: submitting || registerLocked ? null : goToRegister,
         style: ButtonStyle(
-          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 2)),
-          minimumSize: WidgetStatePropertyAll(Size(0, 0)),
+          padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 2)),
+          minimumSize: const WidgetStatePropertyAll(Size(0, 0)),
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          foregroundColor: WidgetStatePropertyAll(Colors.white),
-          textStyle: WidgetStatePropertyAll(
-            TextStyle(inherit: true, fontSize: 15, fontWeight: FontWeight.w700, fontFamily: 'Arial'),
-          ),
+          foregroundColor: const WidgetStatePropertyAll(Colors.white),
+          textStyle: const WidgetStatePropertyAll(TextStyle(inherit: true, fontSize: 15, fontWeight: FontWeight.w700, fontFamily: 'Arial')),
         ),
         child: RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-            style: TextStyle(inherit: true, color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700, fontFamily: 'Arial'),
+            style: const TextStyle(inherit: true, color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700, fontFamily: 'Arial'),
             children: [
-              TextSpan(text: 'Don’t have an account? '),
+              const TextSpan(text: 'Don’t have an account? '),
               TextSpan(
                 text: 'Create Account',
                 style: TextStyle(
                   inherit: true,
-                  color: registerLocked ? Color(0xFFB77C00).withValues(alpha: 0.45) : Color(0xFFB77C00),
+                  color: registerLocked ? const Color(0xFFB77C00).withValues(alpha: 0.45) : const Color(0xFFB77C00),
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Arial',
                 ),
