@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../glob/users.dart';
+import '../../glob/users.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
