@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../glob/users.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -16,9 +17,9 @@ class RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController otpController = TextEditingController();
 
   final List<Map<String, String>> branches = [
-    {'id': '1', 'name': 'Main Branch', 'address': 'Quezon City'},
-    {'id': '2', 'name': 'Makati Branch', 'address': 'Makati City'},
-    {'id': '3', 'name': 'Pasig Branch', 'address': 'Pasig City'},
+    {'id': '1', 'name': 'Main Branch', 'address': 'Makati City'},
+    {'id': '2', 'name': 'Quezon Branch', 'address': 'Quezon City'},
+    {'id': '3', 'name': 'Las Pinas Branch', 'address': 'Las Pinas City'},
   ];
 
   String? branchId;
@@ -47,6 +48,25 @@ class RegisterScreenState extends State<RegisterScreen> {
   Timer? otpRedirectTimer;
 
   int? otpRedirectSeconds;
+
+  void saveRegisteredUser() {
+    final selectedBranch = branches.firstWhere(
+      (branch) => branch['id'] == branchId,
+    );
+
+    AllUsers.userList.add({
+      'id': 'USR${DateTime.now().millisecondsSinceEpoch}',
+      'name': nameController.text.trim(),
+      'email': emailController.text.trim(),
+      'password': passwordController.text,
+      'branchId': branchId,
+      'branchName': selectedBranch['name'],
+      'branchAddress': selectedBranch['address'],
+      'role': 'Patient',
+      'status': 'active',
+      'verified': true,
+    });
+  }
 
   @override
   void dispose() {
@@ -395,6 +415,8 @@ class RegisterScreenState extends State<RegisterScreen> {
     setState(() {
       submitting = false;
     });
+
+    saveRegisteredUser();
 
     Navigator.pushReplacementNamed(context, '/login');
   }
