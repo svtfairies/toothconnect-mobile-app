@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../glob/users.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -107,6 +108,18 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
     await Future.delayed(Duration(milliseconds: 700));
 
+    final userIndex = AllUsers.userList.indexWhere((user) => user['email']?.toString().toLowerCase() == email.toLowerCase());
+    
+    if (userIndex == -1) {
+      setState(() {
+        submitting = false;
+        error = 'User account not found.';
+      });
+      return;
+    }
+    
+    AllUsers.userList[userIndex]['password'] = newPasswordController.text;
+
     if (!mounted) {
       return;
     }
@@ -115,14 +128,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
       submitting = false;
     });
 
-    Navigator.pushReplacementNamed(
-      context,
-      '/login',
-      arguments: {
-        'prefilledEmail': email,
-        'resetSuccess': true,
-      },
-    );
+    Navigator.pushReplacementNamed(context, '/login', arguments: {'prefilledEmail': email, 'resetSuccess': true});
   }
 
   void goBackToForgotPassword() {
@@ -130,12 +136,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
       return;
     }
 
-    Navigator.pushReplacementNamed(
-      context,
-      '/forgot-password',
-      arguments: {
-        'prefilledEmail': email,
-      },
+    Navigator.pushReplacementNamed(context, '/forgot-password', arguments: {'prefilledEmail': email},
     );
   }
 
@@ -204,12 +205,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-                  child: Text(
-                    'RESET PASSWORD',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(inherit: true, fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFFC78300), fontFamily: 'Arial'),
-                  ),
-                ),
+                  child: Text('RESET PASSWORD', textAlign: TextAlign.center, style: TextStyle(inherit: true, fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFFC78300), fontFamily: 'Arial'))),
                 SizedBox(height: 14),
                 Container(width: double.infinity, height: 1.2, margin: EdgeInsets.only(bottom: 20), color: Color(0xFFB98212)),
                 buildLabel('New Password'),
