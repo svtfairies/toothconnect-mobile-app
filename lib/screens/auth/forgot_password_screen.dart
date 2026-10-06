@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../glob/users.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -205,6 +206,15 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       return;
     }
 
+    final userExists = AllUsers.userList.any((user) => user['email']?.toString().toLowerCase() == email.toLowerCase());
+
+    if (!userExists) {
+      setState(() {
+        error = 'No registered account found with this email.';
+      });
+      return;
+    }
+
     setState(() {
       submitting = true;
     });
@@ -339,14 +349,7 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       return;
     }
 
-    Navigator.pushNamed(
-      context,
-      '/reset-password',
-      arguments: {
-        'email': emailController.text.trim().toLowerCase(),
-        'code': code,
-      },
-    );
+    Navigator.pushNamed(context, '/reset-password', arguments: {'email': emailController.text.trim().toLowerCase(), 'code': code});
   }
 
   String getTitle() {
