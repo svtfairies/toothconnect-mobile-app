@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:toothconnect_mobile_app/screens/appointments/book_services_screen.dart';
+import 'package:toothconnect_mobile_app/screens/patients/patient_records_screen.dart';
+import 'package:toothconnect_mobile_app/screens/treatments/dental_treatment_plan_screen.dart';
 
 // AUTHENTICATION
 import 'screens/auth/login_screen.dart';
@@ -18,6 +21,9 @@ import 'screens/notifications/notifications_screen.dart';
 
 // PATIENTS
 import 'screens/patients/profile_screen.dart';
+
+//APPOINTMENT
+import 'screens/appointments/appointments_screen.dart';
 
 import 'theme/app_theme.dart';
 
@@ -53,8 +59,21 @@ class ToothConnectApp extends StatelessWidget {
 
         // PATIENT
         '/profile': (context) => const ProfileScreen(),
+
+        //APPOINTMENT
+        '/appointments':(context) => const AppointmentScreenState(),
+
+        //BOOK APPOINTMENT
+        '/book-appointment':(context) => const AppointmentBookState(),
+
+        //HISTORY
+        '/records':(context) => const PatientRecordState(),
+
+        //DENTAL TREATMENT
+        '/dental-treatment-plan':(context)=> const DentalPlanState(),
+
       },
-      home: const LoginScreen(),
+      home: const AppointmentScreenState(),
     );
   }
 }
