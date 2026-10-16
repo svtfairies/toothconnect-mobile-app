@@ -10,6 +10,10 @@ class AppointmentBookState extends StatefulWidget {
 class AppointmentBook extends State<AppointmentBookState> {
   final Color gold =  Color(0xFFB47A00);
 
+  final TextEditingController concernController = TextEditingController();
+  String appointmentConcern = '';
+  bool showAppointmentCard = false;
+
   final List<Map<String, dynamic>> branches = [
     {'id': 1, 'name': 'Main Branch'},
     {'id': 2, 'name': 'Quezon Branch'},
@@ -142,6 +146,7 @@ class AppointmentBook extends State<AppointmentBookState> {
               SizedBox(height: 12),
 
               TextField(
+                controller: concernController,
                 maxLines: 4,
                 decoration: InputDecoration(
                   hintText:
@@ -181,7 +186,15 @@ class AppointmentBook extends State<AppointmentBookState> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    if (concernController.text.trim().isNotEmpty)
+                    {
+                      setState(() {
+                        appointmentConcern = concernController.text.trim();
+                        showAppointmentCard = true;
+                      });
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: gold,
                     foregroundColor: Colors.white,
@@ -199,6 +212,52 @@ class AppointmentBook extends State<AppointmentBookState> {
                   ),
                 ),
               ),
+
+              if (showAppointmentCard) ...[
+                SizedBox(height: 16,),
+                
+                Card(
+                  color: Colors.white,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(color: Color(0xFFE0D5BC)),
+                  ),
+                  child: Padding(padding: EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Your Current Appointment",
+                        style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Georgia', color: Color(0xFF333333)
+                        ),
+                      ),
+
+                      SizedBox(height: 12,),
+                      Text(
+                        appointmentConcern, style: TextStyle(fontSize: 14, color: Color(0xFF333333)),
+                      ),
+
+                      SizedBox(height: 12,),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(onPressed: () {
+                          setState(() {
+                            showAppointmentCard = false;
+                          });
+                        },
+                        child: Text("Cancel", style: TextStyle(color: gold, fontWeight: FontWeight.bold),),
+                        
+                        ),
+                      )
+
+                    ],
+                  ),
+                  ),
+                )
+              ]
+
             ],
           ),
         ),
